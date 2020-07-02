@@ -3,13 +3,13 @@ extern crate glium_text;
 extern crate cgmath;
 
 use std::path::Path;
-use glium::{glutin, Surface};
+use glium::{glutin::{self, dpi}, Surface};
 
 fn main() {
     use std::fs::File;
 
     let event_loop = glutin::event_loop::EventLoop::new();
-    let window = glutin::window::WindowBuilder::new().with_inner_size((1024, 768).into());
+    let window = glutin::window::WindowBuilder::new().with_inner_size(dpi::LogicalSize::new(1024, 768));
     let context = glutin::ContextBuilder::new();
     let display = glium::Display::new(window, context, &event_loop).unwrap();
     let system = glium_text::TextSystem::new(&display);
@@ -45,6 +45,9 @@ fn main() {
         glium_text::draw(&text, &system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
         target.finish().unwrap();
 
+        let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
         match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
                 glutin::event::WindowEvent::ReceivedCharacter('\r') => buffer.clear(),
@@ -54,9 +57,9 @@ fn main() {
                     *control_flow = glutin::event_loop::ControlFlow::Exit;
                     return;
                 },
-                _ => {}
+                _ => return
             }
-            _ => {}
+            _ => ()
         }
     });
 }
