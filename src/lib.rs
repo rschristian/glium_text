@@ -155,7 +155,7 @@ impl FontTexture {
             };
 
             let mut raw = ::std::ptr::null_mut();
-            if freetype::FT_New_Library(&mut MEMORY, &mut raw) != freetype::FT_Err_Ok {
+            if freetype::FT_New_Library(&raw mut MEMORY, &mut raw) != freetype::FT_Err_Ok {
                 return Err(());
             }
             freetype::FT_Add_Default_Modules(raw);
@@ -487,7 +487,7 @@ unsafe fn build_font_image(face: freetype::FT_Face, characters_list: Vec<char>, 
     // the width is chosen more or less arbitrarily, because we can store everything as long as
     //  the texture is at least as wide as the widest character
     // we just try to estimate a width so that width ~= height
-    let texture_width = get_nearest_po2(std::cmp::max(font_size * 2 as u32,
+    let texture_width = get_nearest_po2(std::cmp::max(font_size * 2_u32,
         ((((characters_list.len() as u32) * font_size * font_size) as f32).sqrt()) as u32));
 
     // we store the position of the "cursor" in the destination texture
@@ -545,7 +545,7 @@ unsafe fn build_font_image(face: freetype::FT_Face, characters_list: Vec<char>, 
                 for x in 0 .. bitmap.width {
                     // the values in source are bytes between 0 and 255, but we want floats between 0 and 1
                     let val: u8 = *source.get(x as usize).unwrap();
-                    let val = (val as f32) / (std::u8::MAX as f32);
+                    let val = (val as f32) / (u8::MAX as f32);
                     let dest = destination.get_mut(x as usize).unwrap();
                     *dest = val;
                 }
